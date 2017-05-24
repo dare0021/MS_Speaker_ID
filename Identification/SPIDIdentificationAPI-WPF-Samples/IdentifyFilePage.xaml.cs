@@ -100,7 +100,6 @@ namespace SPIDIdentificationAPI_WPF_Samples
                 OperationLocation processPollingLocation;
                 using (Stream audioStream = File.OpenRead(path))
                 {
-                    path = "";
                     processPollingLocation = await _serviceClient.IdentifyAsync(audioStream, testProfileIds, shortAudio);
                 }
 
@@ -152,6 +151,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
         private void _identifyBtn_Click(object sender, RoutedEventArgs e)
         {
             identify(_selectedFile, (sender as Button) == _identifyShortAudioBtn);
+            _selectedFile = "";
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
