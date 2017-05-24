@@ -35,6 +35,7 @@ using Microsoft.ProjectOxford.SpeakerRecognition;
 using Microsoft.ProjectOxford.SpeakerRecognition.Contract.Identification;
 using Microsoft.Win32;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
@@ -145,6 +146,19 @@ namespace SPIDIdentificationAPI_WPF_Samples
 
         private void _scriptBtn_Click(object sender, RoutedEventArgs e)
         {
+            _identificationResultStckPnl.Visibility = Visibility.Visible;
+            _identificationResultTxtBlk.Text = "Partitioning input file...";
+
+            string path = _selectedFile;
+            _selectedFile = "";
+            string parentFolderPath = path.Substring(0, path.LastIndexOf('\\')+1);
+            parentFolderPath += DateTime.Now.ToString("MM.dd_HHmmss");
+            Directory.CreateDirectory(parentFolderPath);
+            string soxPath = "c:/sox/sox.exe";
+            // partial copy instruction: sox infile outfile trim startsecond endsecond
+
+            WaveHelper.LoadFile(path);
+            _identificationConfidenceTxtBlk.Text = WaveHelper.GetAudioLength().ToString();
 
         }
 
