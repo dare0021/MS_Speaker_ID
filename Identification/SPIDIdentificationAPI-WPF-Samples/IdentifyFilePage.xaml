@@ -6,9 +6,10 @@
       mc:Ignorable="d" 
       d:DesignHeight="300" d:DesignWidth="300"
 	Title="IdentifyFilePage" Loaded="Page_Loaded">
-    
+
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -40,7 +41,11 @@
         <Button x:Name="_identifyShortAudioBtn" Grid.Row="6" Grid.Column="2" Margin="5, 5, 5, 0" Click="_identifyBtn_Click">
             <TextBlock TextWrapping="WrapWithOverflow" TextAlignment="Center">Identify Short Audio</TextBlock>
         </Button>
-        <StackPanel x:Name="_identificationResultStckPnl" Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Hidden">
+        <TextBlock Grid.Row="7" Grid.Column="1" Margin="5, 7, 0, 0" TextWrapping="WrapWithOverflow">Use programmed sliding window behavior.</TextBlock>
+        <Button x:Name="_scriptedIdentifyBtn" Grid.Row="7" Grid.Column="2" Margin="5, 5, 5, 0" Click="_scriptBtn_Click">
+            <TextBlock TextWrapping="WrapWithOverflow" TextAlignment="Center">Identify via Script</TextBlock>
+        </Button>
+        <StackPanel x:Name="_identificationResultStckPnl" Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="3" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center" Visibility="Hidden">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Margin="5, 5, 0, 0">Identified speaker:</TextBlock>
                 <TextBlock x:Name="_identificationResultTxtBlk" Margin="5, 5, 0, 0" FontWeight="Bold"/>

@@ -81,12 +81,12 @@ namespace SPIDIdentificationAPI_WPF_Samples
             _selectedFile = openFileDialog.FileName;
         }
 
-        private async void _identifyBtn_Click(object sender, RoutedEventArgs e)
+        private async void identify(string path, bool shortAudio)
         {
             MainWindow window = (MainWindow)Application.Current.MainWindow;
             try
             {
-                if (_selectedFile == "")
+                if (path == "")
                     throw new Exception("No File Selected.");
 
                 window.Log("Identifying File...");
@@ -98,10 +98,10 @@ namespace SPIDIdentificationAPI_WPF_Samples
                 }
 
                 OperationLocation processPollingLocation;
-                using (Stream audioStream = File.OpenRead(_selectedFile))
+                using (Stream audioStream = File.OpenRead(path))
                 {
-                    _selectedFile = "";
-                    processPollingLocation = await _serviceClient.IdentifyAsync(audioStream, testProfileIds, ((sender as Button) == _identifyShortAudioBtn));
+                    path = "";
+                    processPollingLocation = await _serviceClient.IdentifyAsync(audioStream, testProfileIds, shortAudio);
                 }
 
                 IdentificationOperation identificationResponse = null;
@@ -142,6 +142,16 @@ namespace SPIDIdentificationAPI_WPF_Samples
             {
                 window.Log("Error: " + ex.Message);
             }
+        }
+
+        private void _scriptBtn_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void _identifyBtn_Click(object sender, RoutedEventArgs e)
+        {
+            identify(_selectedFile, (sender as Button) == _identifyShortAudioBtn);
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
