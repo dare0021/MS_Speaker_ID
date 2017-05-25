@@ -9,7 +9,6 @@ namespace SPIDIdentificationAPI_WPF_Samples
 {
     class StatsHelper
     {
-        private string name;
         public bool childIsCorrect = true;
         private int total = 0;
         private int correctChild = 0;
@@ -25,13 +24,12 @@ namespace SPIDIdentificationAPI_WPF_Samples
             Child, Adult, Neither
         }
 
-        public StatsHelper(string name, bool childIsCorrect)
+        public StatsHelper(bool childIsCorrect)
         {
-            this.name = name;
             this.childIsCorrect = childIsCorrect;
         }
 
-        public float AddResult(string filePath, Result result)
+        public float AddResult(Result result)
         {
             total++;
 
@@ -111,11 +109,6 @@ namespace SPIDIdentificationAPI_WPF_Samples
             retval += "accuracy : " + GetTotalAccuracy() + "\n";
             retval += "accuracy sans neither : " + GetTotalAccuracyIgnoreNeither() + "\n";
             return retval;
-        }
-
-        public string GetName()
-        {
-            return name;
         }
 
         public String SaveLog(string path)

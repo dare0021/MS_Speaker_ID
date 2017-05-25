@@ -148,6 +148,10 @@ namespace SPIDIdentificationAPI_WPF_Samples
 
         private async void _scriptBtn_Click(object sender, RoutedEventArgs e)
         {
+            // maybe rig this in the GUI at some point
+            bool childIsCorrect = false;
+
+
             string path = _selectedFile;
             _selectedFile = "";
             string parentFolderPath = path.Substring(0, path.LastIndexOf('\\')+1);
@@ -157,6 +161,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
             WaveHelper.LoadFile(path);
             int byteLength = WaveHelper.GetAudioByteLength();
             int audioLength = (int)Math.Ceiling(WaveHelper.GetAudioLength());
+            StatsHelper recorder = new StatsHelper(childIsCorrect);
             
             for (int i=0; i < audioLength - 3; i++)
             {
@@ -166,7 +171,32 @@ namespace SPIDIdentificationAPI_WPF_Samples
                 CopyAudioFileSegment(path, outPath, i, endTime);
                 var result = await identify(outPath, true);
                 DisplayResults(result);
+                TrackStats(recorder, result);
             }
+
+            recorder.SaveLog(parentFolderPath + "/log.log");
+        }
+
+        private void TrackStats(StatsHelper recorder, IdentificationOperation result)
+        {
+            StatsHelper.Result arg;
+            if (result.ProcessingResult.IdentifiedProfileId == null)
+            {
+                arg = StatsHelper.Result.Neither;
+            }
+            else if (AliasFile.RetrieveAlias(result.ProcessingResult.IdentifiedProfileId)[1] == 'M')
+            {
+                arg = StatsHelper.Result.Adult;
+            }
+            else if (AliasFile.RetrieveAlias(result.ProcessingResult.IdentifiedProfileId)[1] == 'C')
+            {
+                arg = StatsHelper.Result.Child;
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
+            recorder.AddResult(arg);
         }
 
         /// <summary>
