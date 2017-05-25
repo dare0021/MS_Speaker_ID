@@ -41,6 +41,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Collections;
+using System.Globalization;
+using System.Threading;
 
 namespace SPIDIdentificationAPI_WPF_Samples
 {
@@ -83,13 +85,16 @@ namespace SPIDIdentificationAPI_WPF_Samples
             _selectedFile = openFileDialog.FileName;
         }
 
-        private async void identify(string path, bool shortAudio)
+        private async Task<IdentificationOperation> identify(string path, bool shortAudio)
         {
+            IdentificationOperation identificationResponse = null;
             MainWindow window = (MainWindow)Application.Current.MainWindow;
             try
             {
                 if (path == "")
+                {
                     throw new Exception("No File Selected.");
+                }
 
                 window.Log("Identifying File...");
                 Profile[] selectedProfiles = SpeakersListPage.SpeakersList.GetSelectedProfiles();
@@ -105,7 +110,6 @@ namespace SPIDIdentificationAPI_WPF_Samples
                     processPollingLocation = await _serviceClient.IdentifyAsync(audioStream, testProfileIds, shortAudio);
                 }
 
-                IdentificationOperation identificationResponse = null;
                 int numOfRetries = 10;
                 TimeSpan timeBetweenRetries = TimeSpan.FromSeconds(5.0);
                 while (numOfRetries > 0)
@@ -130,10 +134,6 @@ namespace SPIDIdentificationAPI_WPF_Samples
 
                 window.Log("Identification Done.");
 
-                _identificationResultTxtBlk.Text = identificationResponse.ProcessingResult.IdentifiedProfileId.ToString();
-                _identificationResultAliasTxtBlk.Text = AliasFile.RetrieveAlias(identificationResponse.ProcessingResult.IdentifiedProfileId);
-                _identificationConfidenceTxtBlk.Text = identificationResponse.ProcessingResult.Confidence.ToString();
-                _identificationResultStckPnl.Visibility = Visibility.Visible;
             }
             catch (IdentificationException ex)
             {
@@ -143,13 +143,11 @@ namespace SPIDIdentificationAPI_WPF_Samples
             {
                 window.Log("Error: " + ex.Message);
             }
+            return identificationResponse;
         }
 
-        private void _scriptBtn_Click(object sender, RoutedEventArgs e)
+        private async void _scriptBtn_Click(object sender, RoutedEventArgs e)
         {
-            _identificationResultStckPnl.Visibility = Visibility.Visible;
-            _identificationResultTxtBlk.Text = "Partitioning input file...";
-
             string path = _selectedFile;
             _selectedFile = "";
             string parentFolderPath = path.Substring(0, path.LastIndexOf('\\')+1);
@@ -159,20 +157,21 @@ namespace SPIDIdentificationAPI_WPF_Samples
             WaveHelper.LoadFile(path);
             int byteLength = WaveHelper.GetAudioByteLength();
             int audioLength = (int)Math.Ceiling(WaveHelper.GetAudioLength());
-            // partial copy instruction: sox infile outfile trim startsecond endsecond
-
-            ArrayList files = new ArrayList();
+            
             for (int i=0; i < audioLength - 3; i++)
             {
+                _scriptTxtBlk.Text = "Running file " + (i + 1) + " / " + (audioLength - 3);
                 string outPath = parentFolderPath + "/" + inFileName + i + ".wav";
                 int endTime = i + 3 >= audioLength ? -1 : i + 3;
-                files.Add(outPath);
                 CopyAudioFileSegment(path, outPath, i, endTime);
+                var result = await identify(outPath, true);
+                DisplayResults(result);
             }
         }
 
         /// <summary>
         /// sox doesn't like it if endsecond > audiolen, but will take a copy without an end second
+        /// partial copy instruction: sox infile outfile trim startsecond endsecond
         /// </summary>
         /// <param name="inPath"></param>
         /// <param name="outPath"></param>
@@ -203,16 +202,29 @@ namespace SPIDIdentificationAPI_WPF_Samples
             }
         }
 
-        private void _identifyBtn_Click(object sender, RoutedEventArgs e)
+        private void DisplayResults(IdentificationOperation iop)
         {
-            identify(_selectedFile, (sender as Button) == _identifyShortAudioBtn);
+            _identificationResultTxtBlk.Text = iop.ProcessingResult.IdentifiedProfileId.ToString();
+            _identificationResultAliasTxtBlk.Text = AliasFile.RetrieveAlias(iop.ProcessingResult.IdentifiedProfileId);
+            _identificationConfidenceTxtBlk.Text = iop.ProcessingResult.Confidence.ToString();
+        }
+
+        private async void _identifyBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var result = await identify(_selectedFile, (sender as Button) == _identifyShortAudioBtn);
             _selectedFile = "";
+            DisplayResults(result);
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             SpeakersListPage.SpeakersList.SetMultipleSelectionMode();
             SpeakersListPage.SpeakersList.SelectAll();
+
+
+            CultureInfo useng = new CultureInfo("en-US");
+            Thread.CurrentThread.CurrentCulture = useng;
+            Thread.CurrentThread.CurrentUICulture = useng;
         }
     }
 }
