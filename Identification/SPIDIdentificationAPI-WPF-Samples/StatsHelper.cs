@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SampleUserControlLibrary
+namespace SPIDIdentificationAPI_WPF_Samples
 {
     class StatsHelper
     {
