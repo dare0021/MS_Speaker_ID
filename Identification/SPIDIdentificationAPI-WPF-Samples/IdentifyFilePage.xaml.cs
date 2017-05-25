@@ -40,6 +40,7 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Collections;
 
 namespace SPIDIdentificationAPI_WPF_Samples
 {
@@ -152,14 +153,54 @@ namespace SPIDIdentificationAPI_WPF_Samples
             string path = _selectedFile;
             _selectedFile = "";
             string parentFolderPath = path.Substring(0, path.LastIndexOf('\\')+1);
+            string inFileName = path.Substring(path.LastIndexOf('\\') + 1);
             parentFolderPath += DateTime.Now.ToString("MM.dd_HHmmss");
             Directory.CreateDirectory(parentFolderPath);
-            string soxPath = "c:/sox/sox.exe";
+            WaveHelper.LoadFile(path);
+            int byteLength = WaveHelper.GetAudioByteLength();
+            int audioLength = (int)Math.Ceiling(WaveHelper.GetAudioLength());
             // partial copy instruction: sox infile outfile trim startsecond endsecond
 
-            WaveHelper.LoadFile(path);
-            _identificationConfidenceTxtBlk.Text = WaveHelper.GetAudioLength().ToString();
+            ArrayList files = new ArrayList();
+            for (int i=0; i < audioLength - 3; i++)
+            {
+                string outPath = parentFolderPath + "/" + inFileName + i + ".wav";
+                int endTime = i + 3 >= audioLength ? -1 : i + 3;
+                files.Add(outPath);
+                CopyAudioFileSegment(path, outPath, i, endTime);
+            }
+        }
 
+        /// <summary>
+        /// sox doesn't like it if endsecond > audiolen, but will take a copy without an end second
+        /// </summary>
+        /// <param name="inPath"></param>
+        /// <param name="outPath"></param>
+        /// <param name="startTime"></param>
+        /// <param name="endTime"></param>
+        private void CopyAudioFileSegment(string inPath, string outPath, int startTime, int endTime = -1)
+        {
+            string args = " \"" + inPath + "\" \"" + outPath + "\" trim " + startTime;
+            if (endTime >= 0)
+            {
+                args += " " + endTime;
+            }
+            RunSox(args);
+        }
+
+        private void RunSox(string args)
+        {
+            var startInfo = new ProcessStartInfo();
+            startInfo.FileName = "C:/Program Files (x86)/sox-14-4-2/sox.exe";
+            startInfo.Arguments = args;
+            startInfo.WindowStyle = ProcessWindowStyle.Hidden;
+            startInfo.UseShellExecute = false;
+            startInfo.CreateNoWindow = true;
+            startInfo.WorkingDirectory = AppDomain.CurrentDomain.BaseDirectory;
+            using (Process soxProc = Process.Start(startInfo))
+            {
+                soxProc.WaitForExit();
+            }
         }
 
         private void _identifyBtn_Click(object sender, RoutedEventArgs e)
