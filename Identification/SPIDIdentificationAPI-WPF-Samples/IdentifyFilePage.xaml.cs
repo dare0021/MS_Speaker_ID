@@ -208,7 +208,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
 
         /// <summary>
         /// sox doesn't like it if endsecond > audiolen, but will take a copy without an end second
-        /// partial copy instruction: sox infile outfile trim startsecond endsecond
+        /// partial copy instruction: sox infile outfile trim startTime duration
         /// Can handle up to an hour of audio, exclusive
         /// </summary>
         /// <param name="inPath"></param>
@@ -217,19 +217,21 @@ namespace SPIDIdentificationAPI_WPF_Samples
         /// <param name="endTime">in seconds</param>
         private void CopyAudioFileSegment(string inPath, string outPath, int startTime, int endTime = -1)
         {
-            startTime = MMSS(startTime);
-            endTime = MMSS(endTime);
+            Console.WriteLine("input: " + startTime + " -> " + endTime);
+            string time = SecondsToMMColonSS(startTime);
+            string duration = "" + (endTime - startTime);
             string args = " \"" + inPath + "\" \"" + outPath + "\" trim " + startTime;
+            Console.WriteLine("args: " + args);
             if (endTime >= 0)
             {
-                args += " " + endTime;
+                args += " " + duration;
             }
             RunSox(args);
         }
 
-        private int MMSS(int seconds)
+        private string SecondsToMMColonSS(int seconds)
         {
-            return Int32.Parse("" + (seconds / 60) + (seconds % 60));
+            return "" + (seconds / 60) + ":" + (seconds % 60);
         }
 
         private void RunSox(string args)
