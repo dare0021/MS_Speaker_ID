@@ -187,6 +187,12 @@ namespace SPIDIdentificationAPI_WPF_Samples
         private void TrackStats(StatsHelper recorder, IdentificationOperation result)
         {
             StatsHelper.Result arg;
+            string confidence = "null";
+            if (result != null)
+            {
+                confidence = result.ProcessingResult.Confidence.ToString();
+            }
+
             if (result == null || result.ProcessingResult.IdentifiedProfileId == Guid.Parse("00000000-0000-0000-0000-000000000000"))
             {
                 arg = StatsHelper.Result.Neither;
@@ -203,7 +209,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
             {
                 throw new NotImplementedException();
             }
-            recorder.AddResult(arg);
+            recorder.AddResult(arg, confidence);
         }
 
         /// <summary>

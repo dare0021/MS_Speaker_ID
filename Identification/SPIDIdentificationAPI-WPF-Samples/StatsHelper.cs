@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,6 +19,40 @@ namespace SPIDIdentificationAPI_WPF_Samples
         private int totalDetectChild = 0;
         private int totalDetectNeither = 0;
         private int totalDetectAdult = 0;
+        
+        private class ResultItem
+        {
+            public ResultItem(Result result, string confidence)
+            {
+                this.result = result;
+                this.confidence = confidence;
+            }
+
+            public Result result;
+            public string confidence;
+
+            public override string ToString()
+            {
+                string retval = "\nConfidence: " + confidence;
+                switch (result)
+                {
+                    case Result.Adult:
+                        retval = "Result: Adult" + retval;
+                        break;
+                    case Result.Child:
+                        retval = "Result: Child" + retval;
+                        break;
+                    case Result.Neither:
+                        retval = "Result: Neither" + retval;
+                        break;
+                    default:
+                        throw new NotImplementedException();
+                }
+                return retval;
+            }
+        }
+
+        private ArrayList results = new ArrayList();
 
         public enum Result
         {
@@ -29,9 +64,11 @@ namespace SPIDIdentificationAPI_WPF_Samples
             this.childIsCorrect = childIsCorrect;
         }
 
-        public float AddResult(Result result)
+        public float AddResult(Result result, string confidence)
         {
             total++;
+
+            results.Add(new ResultItem(result, confidence));
 
             Result truth = childIsCorrect ? Result.Child : Result.Adult;
 
@@ -111,13 +148,21 @@ namespace SPIDIdentificationAPI_WPF_Samples
             return retval;
         }
 
-        public String SaveLog(string path)
+        public String SaveLog(string path, bool verbose = false)
         {
+            string retval = ToString();
+            if (verbose)
+            {
+                foreach (var item in results)
+                {
+                    retval += item + "\n";
+                }
+            }
             using (StreamWriter fs = new StreamWriter(File.OpenWrite(path)))
             {
-                fs.WriteLine(ToString());
+                fs.WriteLine(retval);
             }
-            return ToString();
+            return retval;
         }
     }
 }
