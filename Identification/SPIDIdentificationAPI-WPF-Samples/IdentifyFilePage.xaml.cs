@@ -150,7 +150,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
         {
             // maybe rig this in the GUI at some point
             bool childIsCorrect = false;
-            bool uploadEnabled = false;
+            bool uploadEnabled = true;
 
 
             string path = _selectedFile;
@@ -187,7 +187,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
         private void TrackStats(StatsHelper recorder, IdentificationOperation result)
         {
             StatsHelper.Result arg;
-            if (result == null)
+            if (result == null || result.ProcessingResult.IdentifiedProfileId == Guid.Parse("00000000-0000-0000-0000-000000000000"))
             {
                 arg = StatsHelper.Result.Neither;
             }
