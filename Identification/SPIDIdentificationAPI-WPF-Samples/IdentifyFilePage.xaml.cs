@@ -150,6 +150,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
         {
             // maybe rig this in the GUI at some point
             bool childIsCorrect = false;
+            bool uploadEnabled = false;
 
 
             string path = _selectedFile;
@@ -169,12 +170,18 @@ namespace SPIDIdentificationAPI_WPF_Samples
                 string outPath = parentFolderPath + "/" + inFileName + i + ".wav";
                 int endTime = i + 3 >= audioLength ? -1 : i + 3;
                 CopyAudioFileSegment(path, outPath, i, endTime);
-                var result = await identify(outPath, true);
-                DisplayResults(result);
-                TrackStats(recorder, result);
+                if (uploadEnabled)
+                {
+                    var result = await identify(outPath, true);
+                    DisplayResults(result);
+                    TrackStats(recorder, result);
+                }
             }
 
-            recorder.SaveLog(parentFolderPath + "/log.log");
+            if (uploadEnabled)
+            {
+                recorder.SaveLog(parentFolderPath + "/log.log");
+            }
         }
 
         private void TrackStats(StatsHelper recorder, IdentificationOperation result)
@@ -202,19 +209,27 @@ namespace SPIDIdentificationAPI_WPF_Samples
         /// <summary>
         /// sox doesn't like it if endsecond > audiolen, but will take a copy without an end second
         /// partial copy instruction: sox infile outfile trim startsecond endsecond
+        /// Can handle up to an hour of audio, exclusive
         /// </summary>
         /// <param name="inPath"></param>
         /// <param name="outPath"></param>
-        /// <param name="startTime"></param>
-        /// <param name="endTime"></param>
+        /// <param name="startTime">in seconds</param>
+        /// <param name="endTime">in seconds</param>
         private void CopyAudioFileSegment(string inPath, string outPath, int startTime, int endTime = -1)
         {
+            startTime = MMSS(startTime);
+            endTime = MMSS(endTime);
             string args = " \"" + inPath + "\" \"" + outPath + "\" trim " + startTime;
             if (endTime >= 0)
             {
                 args += " " + endTime;
             }
             RunSox(args);
+        }
+
+        private int MMSS(int seconds)
+        {
+            return Int32.Parse("" + (seconds / 60) + (seconds % 60));
         }
 
         private void RunSox(string args)
