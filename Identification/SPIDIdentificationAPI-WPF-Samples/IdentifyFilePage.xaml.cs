@@ -180,7 +180,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
         private void TrackStats(StatsHelper recorder, IdentificationOperation result)
         {
             StatsHelper.Result arg;
-            if (result.ProcessingResult.IdentifiedProfileId == null)
+            if (result == null)
             {
                 arg = StatsHelper.Result.Neither;
             }
@@ -234,6 +234,13 @@ namespace SPIDIdentificationAPI_WPF_Samples
 
         private void DisplayResults(IdentificationOperation iop)
         {
+            if (iop == null)
+            {
+                _identificationResultTxtBlk.Text = "Unknown";
+                _identificationResultAliasTxtBlk.Text = "";
+                _identificationConfidenceTxtBlk.Text = "";
+                return;
+            }
             _identificationResultTxtBlk.Text = iop.ProcessingResult.IdentifiedProfileId.ToString();
             _identificationResultAliasTxtBlk.Text = AliasFile.RetrieveAlias(iop.ProcessingResult.IdentifiedProfileId);
             _identificationConfidenceTxtBlk.Text = iop.ProcessingResult.Confidence.ToString();

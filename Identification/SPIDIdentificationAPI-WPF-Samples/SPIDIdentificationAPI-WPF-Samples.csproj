@@ -78,6 +78,7 @@
     <Compile Include="SpeakersListPage.xaml.cs">
       <DependentUpon>SpeakersListPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="StatsHelper.cs" />
     <Compile Include="WaveHelper.cs" />
     <Page Include="EnrollSpeakersPage.xaml">
       <SubType>Designer</SubType>
