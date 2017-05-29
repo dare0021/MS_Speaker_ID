@@ -168,36 +168,50 @@ namespace SPIDIdentificationAPI_WPF_Samples
             // maybe rig this in the GUI at some point
             bool childIsCorrect = false;
             bool uploadEnabled = true;
-
-
-            string path = _selectedFile;
-            _selectedFile = "";
-            string parentFolderPath = path.Substring(0, path.LastIndexOf('.')+1);
-            string inFileName = path.Substring(path.LastIndexOf('\\') + 1);
-            parentFolderPath += DateTime.Now.ToString("MM.dd_HHmmss");
-            Directory.CreateDirectory(parentFolderPath);
-            WaveHelper.LoadFile(path);
-            int byteLength = WaveHelper.GetAudioByteLength();
-            int audioLength = (int)Math.Ceiling(WaveHelper.GetAudioLength());
-            StatsHelper recorder = new StatsHelper(childIsCorrect);
             
-            for (int i=0; i < audioLength - 3; i++)
+            string[] paths;
+
+            if (_selectedFilesList != null)
             {
-                _scriptTxtBlk.Text = "Running file " + (i + 1) + " / " + (audioLength - 3);
-                string outPath = parentFolderPath + "/" + inFileName + i + ".wav";
-                int endTime = i + 3 >= audioLength ? -1 : i + 3;
-                CopyAudioFileSegment(path, outPath, i, endTime);
+                paths = _selectedFilesList;
+            }
+            else
+            {
+                paths = new string[] { _selectedFile };
+            }
+            
+            _selectedFile = "";
+            _selectedFilesList = null;
+
+            foreach (string path in paths)
+            {
+                string parentFolderPath = path.Substring(0, path.LastIndexOf('.') + 1);
+                string inFileName = path.Substring(path.LastIndexOf('\\') + 1);
+                parentFolderPath += DateTime.Now.ToString("MM.dd_HHmmss");
+                Directory.CreateDirectory(parentFolderPath);
+                WaveHelper.LoadFile(path);
+                int byteLength = WaveHelper.GetAudioByteLength();
+                int audioLength = (int)Math.Ceiling(WaveHelper.GetAudioLength());
+                StatsHelper recorder = new StatsHelper(childIsCorrect);
+
+                for (int i = 0; i < audioLength - 3; i++)
+                {
+                    _scriptTxtBlk.Text = "Running file " + (i + 1) + " / " + (audioLength - 3);
+                    string outPath = parentFolderPath + "/" + inFileName + i + ".wav";
+                    int endTime = i + 3 >= audioLength ? -1 : i + 3;
+                    CopyAudioFileSegment(path, outPath, i, endTime);
+                    if (uploadEnabled)
+                    {
+                        var result = await identify(outPath, true);
+                        DisplayResults(result);
+                        TrackStats(recorder, result);
+                    }
+                }
+
                 if (uploadEnabled)
                 {
-                    var result = await identify(outPath, true);
-                    DisplayResults(result);
-                    TrackStats(recorder, result);
+                    recorder.SaveLog(parentFolderPath + "/log.log", true);
                 }
-            }
-
-            if (uploadEnabled)
-            {
-                recorder.SaveLog(parentFolderPath + "/log.log", true);
             }
         }
 
