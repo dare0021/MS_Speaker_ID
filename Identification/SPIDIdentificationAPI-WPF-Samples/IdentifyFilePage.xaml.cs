@@ -52,6 +52,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
     public partial class IdentifyFilePage : Page
     {
         private string _selectedFile = "";
+        private string[] _selectedFilesList = null;
 
         private SpeakerIdentificationServiceClient _serviceClient;
 
@@ -74,6 +75,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
 
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "WAV Files(*.wav)|*.wav";
+            openFileDialog.Multiselect = true;
             bool? result = openFileDialog.ShowDialog(window);
 
             if (!(bool)result)
@@ -81,8 +83,23 @@ namespace SPIDIdentificationAPI_WPF_Samples
                 window.Log("No File Selected.");
                 return;
             }
-            window.Log("File Selected: " + openFileDialog.FileName);
-            _selectedFile = openFileDialog.FileName;
+            if (openFileDialog.FileNames.Length < 2)
+            {
+                window.Log("File Selected: " + openFileDialog.FileName);
+                _selectedFile = openFileDialog.FileName;
+                _selectedFilesList = null;
+            }
+            else
+            {
+                window.Log("Files Selected:");
+                foreach (var s in openFileDialog.FileNames)
+                {
+                    window.Log(s);
+                }
+                window.Log("Representative file: " + openFileDialog.FileNames[0]);
+                _selectedFile = openFileDialog.FileNames[0];
+                _selectedFilesList = openFileDialog.FileNames;
+            }
         }
 
         private async Task<IdentificationOperation> identify(string path, bool shortAudio)
