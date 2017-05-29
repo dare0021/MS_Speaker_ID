@@ -153,9 +153,11 @@ namespace SPIDIdentificationAPI_WPF_Samples
             string retval = ToString();
             if (verbose)
             {
+                int iNo = 0;
                 foreach (var item in results)
                 {
-                    retval += item + "\n";
+                    retval += "iter " + iNo + "\n" + item + "\n\n";
+                    iNo++;
                 }
             }
             using (StreamWriter fs = new StreamWriter(File.OpenWrite(path)))

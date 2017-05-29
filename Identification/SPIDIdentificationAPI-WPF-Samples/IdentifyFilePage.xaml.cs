@@ -155,7 +155,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
 
             string path = _selectedFile;
             _selectedFile = "";
-            string parentFolderPath = path.Substring(0, path.LastIndexOf('\\')+1);
+            string parentFolderPath = path.Substring(0, path.LastIndexOf('.')+1);
             string inFileName = path.Substring(path.LastIndexOf('\\') + 1);
             parentFolderPath += DateTime.Now.ToString("MM.dd_HHmmss");
             Directory.CreateDirectory(parentFolderPath);
@@ -180,7 +180,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
 
             if (uploadEnabled)
             {
-                recorder.SaveLog(parentFolderPath + "/log.log");
+                recorder.SaveLog(parentFolderPath + "/log.log", true);
             }
         }
 
@@ -223,11 +223,9 @@ namespace SPIDIdentificationAPI_WPF_Samples
         /// <param name="endTime">in seconds</param>
         private void CopyAudioFileSegment(string inPath, string outPath, int startTime, int endTime = -1)
         {
-            Console.WriteLine("input: " + startTime + " -> " + endTime);
             string time = SecondsToMMColonSS(startTime);
             string duration = "" + (endTime - startTime);
             string args = " \"" + inPath + "\" \"" + outPath + "\" trim " + startTime;
-            Console.WriteLine("args: " + args);
             if (endTime >= 0)
             {
                 args += " " + duration;
