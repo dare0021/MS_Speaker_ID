@@ -166,7 +166,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
         private async void _scriptBtn_Click(object sender, RoutedEventArgs e)
         {
             // maybe rig this in the GUI at some point
-            bool childIsCorrect = false;
+            bool childIsCorrect = true;
             bool uploadEnabled = true;
             
             string[] paths;
@@ -219,6 +219,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
         {
             StatsHelper.Result arg;
             string confidence = "null";
+            string alias = "null";
             if (result != null)
             {
                 confidence = result.ProcessingResult.Confidence.ToString();
@@ -228,19 +229,23 @@ namespace SPIDIdentificationAPI_WPF_Samples
             {
                 arg = StatsHelper.Result.Neither;
             }
-            else if (AliasFile.RetrieveAlias(result.ProcessingResult.IdentifiedProfileId)[1] == 'M')
-            {
-                arg = StatsHelper.Result.Adult;
-            }
-            else if (AliasFile.RetrieveAlias(result.ProcessingResult.IdentifiedProfileId)[1] == 'C')
-            {
-                arg = StatsHelper.Result.Child;
-            }
             else
             {
-                throw new NotImplementedException();
+                alias = AliasFile.RetrieveAlias(result.ProcessingResult.IdentifiedProfileId);                
+                if (alias[1] == 'M')
+                {
+                    arg = StatsHelper.Result.Adult;
+                }
+                else if (alias[1] == 'C')
+                {
+                    arg = StatsHelper.Result.Child;
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
             }
-            recorder.AddResult(arg, confidence);
+            recorder.AddResult(arg, confidence, alias);
         }
 
         /// <summary>

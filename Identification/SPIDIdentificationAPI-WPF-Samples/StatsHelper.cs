@@ -22,14 +22,16 @@ namespace SPIDIdentificationAPI_WPF_Samples
         
         private class ResultItem
         {
-            public ResultItem(Result result, string confidence)
+            public ResultItem(Result result, string confidence, string alias)
             {
                 this.result = result;
                 this.confidence = confidence;
+                this.alias = alias;
             }
 
             public Result result;
             public string confidence;
+            public string alias;
 
             public override string ToString()
             {
@@ -48,6 +50,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
                     default:
                         throw new NotImplementedException();
                 }
+                retval += "\nAlias: " + alias;
                 return retval;
             }
         }
@@ -64,11 +67,11 @@ namespace SPIDIdentificationAPI_WPF_Samples
             this.childIsCorrect = childIsCorrect;
         }
 
-        public float AddResult(Result result, string confidence)
+        public float AddResult(Result result, string confidence, string alias)
         {
             total++;
 
-            results.Add(new ResultItem(result, confidence));
+            results.Add(new ResultItem(result, confidence, alias));
 
             Result truth = childIsCorrect ? Result.Child : Result.Adult;
 
