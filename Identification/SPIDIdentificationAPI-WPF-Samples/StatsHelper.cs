@@ -11,13 +11,17 @@ namespace SPIDIdentificationAPI_WPF_Samples
     class StatsHelper
     {
         public bool childIsCorrect = true;
+
+        static private List<string> validNoiseClasses = new List<string>() { "Living1", "Living10", "Car1", "Car10" };
+
         private int total = 0;
         private int correctChild = 0;
         private int correctAdult = 0;
         private int totalTruthChild = 0;
         private int totalTruthAdult = 0;
         private int totalDetectChild = 0;
-        private int totalDetectNeither = 0;
+        private int totalDetectUnknown = 0;
+        private int totalDetectNoise = 0;
         private int totalDetectAdult = 0;
         
         private class ResultItem
@@ -44,8 +48,11 @@ namespace SPIDIdentificationAPI_WPF_Samples
                     case Result.Child:
                         retval = "Result: Child" + retval;
                         break;
-                    case Result.Neither:
+                    case Result.Unknown:
                         retval = "Result: Neither" + retval;
+                        break;
+                    case Result.Noise:
+                        retval = "Result: Noise" + retval;
                         break;
                     default:
                         throw new NotImplementedException();
@@ -59,7 +66,12 @@ namespace SPIDIdentificationAPI_WPF_Samples
 
         public enum Result
         {
-            Child, Adult, Neither
+            Child, Adult, Noise, Unknown
+        }
+
+        static public bool IsValidNoiseClass(string input)
+        {
+            return validNoiseClasses.Contains(input);
         }
 
         public StatsHelper(bool childIsCorrect)
@@ -83,8 +95,11 @@ namespace SPIDIdentificationAPI_WPF_Samples
                 case Result.Adult:
                     totalDetectAdult++;
                     break;
-                case Result.Neither:
-                    totalDetectNeither++;
+                case Result.Noise:
+                    totalDetectNoise++;
+                    break;
+                case Result.Unknown:
+                    totalDetectUnknown++;
                     break;
                 default:
                     throw new NotImplementedException();
@@ -98,7 +113,9 @@ namespace SPIDIdentificationAPI_WPF_Samples
                 case Result.Adult:
                     totalTruthAdult++;
                     break;
-                case Result.Neither:
+                case Result.Noise:
+                    //fall through
+                case Result.Unknown:
                 //fall through
                 default:
                     throw new NotImplementedException();
@@ -130,7 +147,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
 
         public float GetTotalAccuracyIgnoreNeither()
         {
-            return (float)(correctAdult + correctChild) / (total - totalDetectNeither);
+            return (float)(correctAdult + correctChild) / (total - totalDetectUnknown - totalDetectNoise);
         }
 
         
@@ -144,7 +161,8 @@ namespace SPIDIdentificationAPI_WPF_Samples
             retval += "totalTruthChild : " + totalTruthChild + "\n";
             retval += "totalTruthAdult : " + totalTruthAdult + "\n";
             retval += "totalDetectChild : " + totalDetectChild + "\n";
-            retval += "totalDetectNeither : " + totalDetectNeither + "\n";
+            retval += "totalDetectUnknown : " + totalDetectUnknown + "\n";
+            retval += "totalDetectNoise : " + totalDetectNoise + "\n";
             retval += "totalDetectAdult : " + totalDetectAdult + "\n";
             retval += "accuracy : " + GetTotalAccuracy() + "\n";
             retval += "accuracy sans neither : " + GetTotalAccuracyIgnoreNeither() + "\n";

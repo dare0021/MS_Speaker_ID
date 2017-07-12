@@ -227,7 +227,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
 
             if (result == null || result.ProcessingResult.IdentifiedProfileId == Guid.Parse("00000000-0000-0000-0000-000000000000"))
             {
-                arg = StatsHelper.Result.Neither;
+                arg = StatsHelper.Result.Unknown;
             }
             else
             {
@@ -239,6 +239,10 @@ namespace SPIDIdentificationAPI_WPF_Samples
                 else if (alias[1] == 'C')
                 {
                     arg = StatsHelper.Result.Child;
+                }
+                else if (StatsHelper.IsValidNoiseClass(alias))
+                {
+                    arg = StatsHelper.Result.Noise;
                 }
                 else
                 {
