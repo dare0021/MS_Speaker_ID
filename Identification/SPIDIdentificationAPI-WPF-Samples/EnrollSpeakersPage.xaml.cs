@@ -132,6 +132,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
                 {
                     _selectedFile = "";
                     processPollingLocation = await _serviceClient.EnrollAsync(audioStream, id, ((sender as Button) == _enrollShortAudioBtn));
+                    window.Log("Request enrollment...");
                 }
 
                 EnrollmentOperation enrollmentResult;
@@ -151,6 +152,7 @@ namespace SPIDIdentificationAPI_WPF_Samples
                         throw new EnrollmentException(enrollmentResult.Message);
                     }
                     numOfRetries--;
+                    window.Log("Retrying... (" + numOfRetries + ")");
                 }
                 if(numOfRetries <= 0)
                 {
