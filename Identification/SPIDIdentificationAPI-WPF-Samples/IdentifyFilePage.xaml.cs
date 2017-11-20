@@ -302,7 +302,14 @@ namespace SPIDIdentificationAPI_WPF_Samples
                 _identificationConfidenceTxtBlk.Text = "";
                 return;
             }
-            _identificationResultTxtBlk.Text = iop.ProcessingResult.IdentifiedProfileId.ToString();
+            else if (iop.ProcessingResult == null)
+            {
+                _identificationResultTxtBlk.Text = "API usage rule error";
+            }
+            else
+            {
+                _identificationResultTxtBlk.Text = iop.ProcessingResult.IdentifiedProfileId.ToString();
+            }
             _identificationResultAliasTxtBlk.Text = AliasFile.RetrieveAlias(iop.ProcessingResult.IdentifiedProfileId);
             _identificationConfidenceTxtBlk.Text = iop.ProcessingResult.Confidence.ToString();
         }
